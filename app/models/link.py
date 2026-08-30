@@ -18,6 +18,15 @@ class ExtractionStatus(str, enum.Enum):
     failed = "failed"
 
 
+class ReadingStatus(str, enum.Enum):
+    """Reading-list workflow state for a saved link, independent of tags."""
+
+    to_read = "to_read"
+    reading = "reading"
+    done = "done"
+    archived = "archived"
+
+
 class SavedLink(Base):
     __tablename__ = "saved_links"
 
@@ -51,10 +60,20 @@ class SavedLink(Base):
         Text,
         nullable=True,
     )
+    summary: Mapped[Optional[str]] = mapped_column(
+        Text,
+        nullable=True,
+    )
     extraction_status: Mapped[ExtractionStatus] = mapped_column(
         SAEnum(ExtractionStatus, name="extraction_status", create_constraint=True),
         nullable=False,
         default=ExtractionStatus.pending,
+    )
+    status: Mapped[str] = mapped_column(
+        String(20),
+        nullable=False,
+        default=ReadingStatus.to_read.value,
+        server_default=ReadingStatus.to_read.value,
     )
     created_at: Mapped[datetime] = mapped_column(
         server_default=func.now(),

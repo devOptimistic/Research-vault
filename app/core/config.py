@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
-import os
+
 
 class Settings(BaseSettings):
     # Database (async — used by FastAPI)
@@ -20,6 +20,34 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 60
+
+    # AI roadmap generation — any OpenAI-compatible chat-completions API
+    # (defaults target OpenRouter, but any compatible base URL/model works).
+    # Left blank by default so the app still starts without it configured;
+    # the roadmap service raises a clear error at call time if it's unset.
+    AI_API_KEY: str = ""
+    AI_BASE_URL: str = "https://api-inference.huggingface.co/v1"
+    AI_MODEL: str = "deepseek-ai/DeepSeek-V3-0324"
+
+    # Roadmap response caching (Redis)
+    ROADMAP_CACHE_TTL_SECONDS: int = 3600
+
+    # AI endpoints rate limiting (Redis, fixed window) — shared budget across
+    # roadmap, summarise, explain, suggest-tags and search-semantic.
+    AI_RATE_LIMIT_MAX_REQUESTS: int = 10
+    AI_RATE_LIMIT_WINDOW_SECONDS: int = 60
+
+    # Auth endpoints rate limiting (Redis, fixed window, IP-based) —
+    # brute-force protection for register/login.
+    AUTH_RATE_LIMIT_MAX_REQUESTS: int = 20
+    AUTH_RATE_LIMIT_WINDOW_SECONDS: int = 300
+    
+    RATE_LIMITER_FAIL_OPEN: bool = True
+
+    OPENROUTER_API_KEY: str | None = None
+    HF_API_KEY: str | None = None
+    GROQ_API_KEY: str | None = None
+    GEMINI_API_KEY: str | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",
