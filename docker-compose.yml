@@ -89,7 +89,16 @@ services:
       redis:
         condition: service_started
     restart: unless-stopped
-
+    
+  ui:
+    build:
+      context: ./research-vault-ui
+      dockerfile: Dockerfile
+    ports:
+      - "4200:80"
+    depends_on:
+      - app
+    restart: unless-stopped
 volumes:
   postgres_data:
   searxng_data:
